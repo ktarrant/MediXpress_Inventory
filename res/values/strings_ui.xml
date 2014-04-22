@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <array name="tab_labels">
-        <item>Orders</item>
-        <item>Products</item>
-        <item>Reports</item>
-    </array>
+    
+	<string name="tab_orders">Orders</string>
+	<string name="tab_products">Products</string>
+	<string name="tab_reports">Reports</string>
     
     <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>

@@ -1,24 +1,50 @@
 package com.medixpress.Inventory;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
+import com.medixpress.Inventory.ItemListFragment.Callbacks;
 import com.medixpress.Inventory.dummy.DummyContent;
 
-/**
- * A list fragment representing a list of Items. This fragment also supports
- * tablet devices by allowing list items to be given an 'activated' state upon
- * selection. This helps indicate which item is currently being viewed in a
- * {@link ItemDetailFragment}.
- * <p>
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
- */
-public class ItemListFragment extends ListFragment {
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.ListFragment;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ListView;
+
+public class ItemListFragment extends Fragment implements OnItemClickListener {
+	private final static String TAG = "OnItemClickListener";
+	
+	private ExpandableListView rootView = null;
+
+	public ExpandableListAdapter createDemoAdapter() {
+		// Create Products ExpandableListAdapter
+		Resources res = getResources();
+		ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
+				res.getStringArray(R.array.product_types)));
+		HashMap<String, List<String>> listChildData = 
+				new HashMap<String, List<String>>();
+		for (String header : listDataHeader) {
+			ArrayList<String> childData = new ArrayList<String>();
+			childData.add("1");
+			childData.add("2");
+			childData.add("3");
+			listChildData.put(header, childData);
+		}//
+		return new ExpandableListAdapter(getActivity(), listDataHeader, listChildData);
+	}
+	
 
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
@@ -46,7 +72,7 @@ public class ItemListFragment extends ListFragment {
 		/**
 		 * Callback for when an item has been selected.
 		 */
-		public void onItemSelected(String id);
+		public void onItemSelected(long id);
 	}
 
 	/**
@@ -55,7 +81,7 @@ public class ItemListFragment extends ListFragment {
 	 */
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onItemSelected(String id) {
+		public void onItemSelected(long id) {
 		}
 	};
 
@@ -69,11 +95,21 @@ public class ItemListFragment extends ListFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// Do nothing
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+	    // Get the View holding our ExpandableListView
+	    View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+	    // Get the ExpandableListView
+	    rootView = (ExpandableListView) view.findViewById(R.id.list_content);
+	    // Assign our adapter
+		rootView.setAdapter(createDemoAdapter());
+		rootView.setOnItemClickListener(this);
 
-		// TODO: replace with a real list adapter.
-		setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1, DummyContent.ITEMS));
+	    return view;
 	}
 
 	@Override
@@ -110,16 +146,6 @@ public class ItemListFragment extends ListFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView listView, View view, int position,
-			long id) {
-		super.onListItemClick(listView, view, position, id);
-
-		// Notify the active callbacks interface (the activity, if the
-		// fragment is attached to one) that an item has been selected.
-		mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (mActivatedPosition != ListView.INVALID_POSITION) {
@@ -135,18 +161,29 @@ public class ItemListFragment extends ListFragment {
 	public void setActivateOnItemClick(boolean activateOnItemClick) {
 		// When setting CHOICE_MODE_SINGLE, ListView will automatically
 		// give items the 'activated' state when touched.
-		getListView().setChoiceMode(
+		rootView.setChoiceMode(
 				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
 						: ListView.CHOICE_MODE_NONE);
 	}
 
 	private void setActivatedPosition(int position) {
 		if (position == ListView.INVALID_POSITION) {
-			getListView().setItemChecked(mActivatedPosition, false);
+			rootView.setItemChecked(mActivatedPosition, false);
 		} else {
-			getListView().setItemChecked(position, true);
+			rootView.setItemChecked(position, true);
 		}
 
 		mActivatedPosition = position;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		// Notify the active callbacks interface (the activity, if the
+		// fragment is attached to one) that an item has been selected.
+		
+		Log.i(TAG, "ItemClick @ " + position);
+		
+		mCallbacks.onItemSelected(position);
 	}
 }

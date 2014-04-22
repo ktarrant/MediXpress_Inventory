@@ -1,13 +1,11 @@
 package com.medixpress.Inventory;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.medixpress.Inventory.dummy.DummyContent;
 
 /**
  * A fragment representing a single Item detail screen. This fragment is either
@@ -20,11 +18,22 @@ public class ItemDetailFragment extends Fragment {
 	 * represents.
 	 */
 	public static final String ARG_ITEM_ID = "item_id";
+	
+	/**
+	 * The fragment argument representing the item typeId that this fragment
+	 * represents.
+	 */
+	public static final String ARG_ITEM_TYPEID = "item_typeId";
 
 	/**
-	 * The dummy content this fragment is presenting.
+	 * Either the productId or orderId of the item.
 	 */
-	private DummyContent.DummyItem mItem;
+	private Long id = null;
+	
+	/**
+	 * Designates the type of id: order, product, vendor, etc.
+	 */
+	private Integer typeId = null;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -41,8 +50,14 @@ public class ItemDetailFragment extends Fragment {
 			// Load the dummy content specified by the fragment
 			// arguments. In a real-world scenario, use a Loader
 			// to load content from a content provider.
-			mItem = DummyContent.ITEM_MAP.get(getArguments().getString(
-					ARG_ITEM_ID));
+			id = getArguments().getLong(ARG_ITEM_ID);
+		}
+		
+		if (getArguments().containsKey(ARG_ITEM_TYPEID)) {
+			// Load the dummy content specified by the fragment
+			// arguments. In a real-world scenario, use a Loader
+			// to load content from a content provider.
+			id = getArguments().getLong(ARG_ITEM_TYPEID);
 		}
 	}
 
@@ -51,11 +66,11 @@ public class ItemDetailFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_item_detail,
 				container, false);
-
-		// Show the dummy content as text in a TextView.
-		if (mItem != null) {
+//
+		// Show the productId dawg
+		if (id != null && typeId != null) {
 			((TextView) rootView.findViewById(R.id.item_detail))
-					.setText(mItem.content);
+					.setText(String.format("%d: %X", typeId, id));
 		}
 
 		return rootView;
