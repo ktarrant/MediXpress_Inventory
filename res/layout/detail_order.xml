@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <TextView
+        android:id="@+id/detail_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Order"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+    <ImageView
+        android:id="@+id/consumerImage"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:src="@android:drawable/picture_frame"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/detail_header"
+        android:contentDescription="Product Image"/>
+    
+     <TextView
+	        android:id="@+id/orderTitle"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Product Title"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	        android:layout_toRightOf="@+id/consumerImage"
+	        android:layout_alignParentTop="true" />
+        
+    <LinearLayout
+        android:id="@+id/orderDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/consumerImage"
+        android:layout_alignParentLeft="true">
+        
+        
+        <TextView
+	        android:id="@+id/orderSummary"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Product Summary"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+    </LinearLayout>
+      
+        
+       	
+
+</RelativeLayout>

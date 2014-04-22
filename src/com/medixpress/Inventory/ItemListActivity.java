@@ -1,6 +1,17 @@
 package com.medixpress.Inventory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import com.medixpress.Inventory.DataLoader.LoadListener;
 import com.medixpress.Inventory.ItemListFragment.Callbacks;
+import com.medixpress.Inventory.adapters.OrderListAdapter;
+import com.medixpress.Inventory.adapters.ProductListAdapter;
+import com.medixpress.SQLite.DatabaseHelper;
+import com.medixpress.SQLite.Order;
+import com.medixpress.SQLite.Product;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -13,6 +24,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.BaseExpandableListAdapter;
 
 /**
  * An activity representing a list of Items. This activity has different
@@ -38,11 +50,23 @@ public class ItemListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
+	
+	/**
+	 * DataLoader object - manages our Database
+	 */
+	private static DataLoader loader = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_item_list);
+		
+		loader = new DataLoader();
+		loader.registerLoadListener(loadListener);
+		loader.loadAll(this);
+		
+		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
+				findFragmentById(R.id.item_list));
 
 		if (findViewById(R.id.item_detail_container) != null) {
 			// The detail container view will be present only in the
@@ -53,13 +77,13 @@ public class ItemListActivity extends FragmentActivity implements
 
 			// In two-pane mode, list items should be given the
 			// 'activated' state when touched.
-			((ItemListFragment)getFragmentManager().findFragmentById(R.id.item_list))
-				.setActivateOnItemClick(true);
+			listFragment.setActivateOnItemClick(true);
 		}
 		
 		// Initialize the ActionBar Tabs
 		initTabs();
-
+		// Initalize ItemListFragment with current Tab
+		updateListFragment();
 		// TODO: If exposing deep links into your app, handle intents here.
 	}
 	
@@ -97,9 +121,11 @@ public class ItemListActivity extends FragmentActivity implements
 			// adding or replacing the detail fragment using a
 			// fragment transaction.
 			Bundle arguments = new Bundle();
-			arguments.putLong(ItemDetailFragment.ARG_ITEM_ID, id);
+			int typeId = getActionBar().getSelectedNavigationIndex();
+			arguments.putLong(ItemDetailFragment.ARG_ITEM_ID, 
+					id);
 			arguments.putInt(ItemDetailFragment.ARG_ITEM_TYPEID, 
-					getActionBar().getSelectedNavigationIndex());
+					typeId);
 			ItemDetailFragment fragment = new ItemDetailFragment();
 			fragment.setArguments(arguments);
 			getFragmentManager().beginTransaction()
@@ -111,8 +137,7 @@ public class ItemListActivity extends FragmentActivity implements
 			Integer typeId = (Integer)getActionBar().getSelectedNavigationIndex();
 			Intent detailIntent = new Intent(this, ItemDetailActivity.class);
 			detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, (Long)id);
-			detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_TYPEID, typeId);
-			Log.i(TAG, String.format("%d: %X", typeId, id));
+			detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_TYPEID, (Integer)typeId);
 			startActivity(detailIntent);
 		}
 	}
@@ -132,8 +157,9 @@ public class ItemListActivity extends FragmentActivity implements
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-
+		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
+				findFragmentById(R.id.item_list));
+		listFragment.setAdapter(getListAdapter((String) tab.getText()));
 	}
 
 	@Override
@@ -146,5 +172,63 @@ public class ItemListActivity extends FragmentActivity implements
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void updateListFragment() {
+		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
+				findFragmentById(R.id.item_list));
+		final ActionBar bar = getActionBar();
+		listFragment.setAdapter(getListAdapter((String) bar
+				.getTabAt(bar.getSelectedNavigationIndex()).getText()));
+		listFragment.expand(0);
+	}
+	
+	private LoadListener loadListener = new LoadListener() {
+		@Override
+		public void OnLoadFinished() {
+			updateListFragment();
+		}
+	};
+	
+	/**
+	 * Creates a ExpandableListAdapter for the given tabIndex
+	 * @param tabIndex index of the ActionBar Tabs
+	 */
+	public BaseExpandableListAdapter getListAdapter(String tab) {
+		Resources res = getResources();
+		BaseExpandableListAdapter rval = null;
+		if (tab.equals(getString(R.string.tab_orders))) {
+			// ORders tab
+			ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.order_types)));
+			List<Order> orders = loader.getOrders();
+			if (orders == null) {
+				orders = new ArrayList<Order>();
+			}
+			rval = new OrderListAdapter(this, listDataHeader, orders);
+		} else if (tab.equals(getString(R.string.tab_products))) {
+			// Products tab
+			ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.product_types)));
+			List<Product> products = loader.getProducts();
+			if (products == null) {
+				products = new ArrayList<Product>();
+			}
+			rval = new ProductListAdapter(this, listDataHeader, products);
+		} else if (tab.equals(getString(R.string.tab_reports))) {
+			// Reports tab
+			ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.product_types)));
+			List<Product> products = loader.getProducts();
+			if (products == null) {
+				products = new ArrayList<Product>();
+			}
+			rval = new ProductListAdapter(this, listDataHeader, products);
+		}
+		return rval;
+	}
+	
+	public static DataLoader getLoader() {
+		return loader;
 	}
 }

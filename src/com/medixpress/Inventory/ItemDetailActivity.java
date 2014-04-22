@@ -41,9 +41,9 @@ public class ItemDetailActivity extends Activity {
 			// using a fragment transaction.
 			Bundle arguments = new Bundle();
 			arguments.putLong(ItemDetailFragment.ARG_ITEM_ID, getIntent()
-					.getLongExtra(ItemDetailFragment.ARG_ITEM_ID, (Long)null));
+					.getLongExtra(ItemDetailFragment.ARG_ITEM_ID, -1));
 			arguments.putInt(ItemDetailFragment.ARG_ITEM_TYPEID, getIntent()
-					.getIntExtra(ItemDetailFragment.ARG_ITEM_TYPEID, (Integer)null));
+					.getIntExtra(ItemDetailFragment.ARG_ITEM_TYPEID, -1));
 			Fragment fragment = new ItemDetailFragment();
 			fragment.setArguments(arguments);
 			getFragmentManager().beginTransaction()

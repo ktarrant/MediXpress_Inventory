@@ -10,4 +10,9 @@
         <item>Tinctures</item>
         <item>Shatter</item>
     </string-array>
+    
+    <string-array name="order_types">
+        <item>Pending</item>
+        <item>Completed</item>
+    </string-array>
 </resources>

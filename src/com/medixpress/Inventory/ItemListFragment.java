@@ -1,12 +1,6 @@
 package com.medixpress.Inventory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
-import com.medixpress.Inventory.ItemListFragment.Callbacks;
-import com.medixpress.Inventory.dummy.DummyContent;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -20,31 +14,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ListView;
 
-public class ItemListFragment extends Fragment implements OnItemClickListener {
+public class ItemListFragment extends Fragment implements 
+	OnChildClickListener {
 	private final static String TAG = "OnItemClickListener";
 	
+	private BaseExpandableListAdapter adapter = null;
 	private ExpandableListView rootView = null;
-
-	public ExpandableListAdapter createDemoAdapter() {
-		// Create Products ExpandableListAdapter
-		Resources res = getResources();
-		ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
-				res.getStringArray(R.array.product_types)));
-		HashMap<String, List<String>> listChildData = 
-				new HashMap<String, List<String>>();
-		for (String header : listDataHeader) {
-			ArrayList<String> childData = new ArrayList<String>();
-			childData.add("1");
-			childData.add("2");
-			childData.add("3");
-			listChildData.put(header, childData);
-		}//
-		return new ExpandableListAdapter(getActivity(), listDataHeader, listChildData);
-	}
-	
 
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
@@ -96,6 +76,14 @@ public class ItemListFragment extends Fragment implements OnItemClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// Do nothing
+	
+	}
+	
+	public void setAdapter(BaseExpandableListAdapter adapter) {
+		this.adapter = adapter;
+		if (rootView != null) {
+			rootView.setAdapter(this.adapter);
+		}
 	}
 	
 	@Override
@@ -106,9 +94,10 @@ public class ItemListFragment extends Fragment implements OnItemClickListener {
 	    // Get the ExpandableListView
 	    rootView = (ExpandableListView) view.findViewById(R.id.list_content);
 	    // Assign our adapter
-		rootView.setAdapter(createDemoAdapter());
-		rootView.setOnItemClickListener(this);
-
+	    if (adapter != null) {
+			rootView.setAdapter(adapter);
+	    }
+	    rootView.setOnChildClickListener(this);
 	    return view;
 	}
 
@@ -166,24 +155,36 @@ public class ItemListFragment extends Fragment implements OnItemClickListener {
 						: ListView.CHOICE_MODE_NONE);
 	}
 
-	private void setActivatedPosition(int position) {
-		if (position == ListView.INVALID_POSITION) {
-			rootView.setItemChecked(mActivatedPosition, false);
+	private void setActivatedPosition(int flattenedPosition) {
+		if (flattenedPosition == ListView.INVALID_POSITION) {
+			rootView.setItemChecked(flattenedPosition, false);
 		} else {
-			rootView.setItemChecked(position, true);
+			rootView.setItemChecked(flattenedPosition, true);
 		}
 
-		mActivatedPosition = position;
+		mActivatedPosition = flattenedPosition;
+	}
+	
+	private void setActivatedPosition(int groupPosition, int childPosition) {
+		int index = rootView.getFlatListPosition(ExpandableListView.
+				getPackedPositionForChild(groupPosition, childPosition));
+		setActivatedPosition(index);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public boolean onChildClick(ExpandableListView parent, View v,
+			int groupPosition, int childPosition, long id) {
 		// Notify the active callbacks interface (the activity, if the
 		// fragment is attached to one) that an item has been selected.
 		
-		Log.i(TAG, "ItemClick @ " + position);
+		setActivatedPosition(groupPosition, childPosition);
 		
-		mCallbacks.onItemSelected(position);
+		mCallbacks.onItemSelected(adapter.getChildId(groupPosition, childPosition));
+		
+		return false;
+	}
+	
+	public void expand(int groupPosition) {
+		rootView.expandGroup(groupPosition);
 	}
 }

@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="13"
+        android:minSdkVersion="14"
         android:targetSdkVersion="19" />
 
     <application
@@ -14,16 +14,20 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.medixpress.Inventory.ItemListActivity"
-            android:label="@string/app_name"
-            android:uiOptions="splitActionBarWhenNarrow" >
-            <meta-data android:name="android.support.UI_OPTIONS"
-                   android:value="splitActionBarWhenNarrow" />
+            android:name="com.medixpress.Inventory.SplashActivity"
+            android:theme="@style/SplashTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.medixpress.Inventory.ItemListActivity"
+            android:label="@string/app_name"
+            android:uiOptions="splitActionBarWhenNarrow" >
+            <meta-data android:name="android.support.UI_OPTIONS"
+                   android:value="splitActionBarWhenNarrow" />
         </activity>
         <activity
             android:name="com.medixpress.Inventory.ItemDetailActivity"
