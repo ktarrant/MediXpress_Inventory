@@ -5,60 +5,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.medixpress.SQLite.Product;
-
-import com.medixpress.Inventory.R;
-import com.medixpress.Inventory.View.ProductListItem;
-
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
-import android.text.Html;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ProductListAdapter extends CustomListAdapter {
-	private final static String TAG = "ProductListAdapter"; 
+import com.medixpress.Inventory.R;
+import com.medixpress.Inventory.View.ProductListItem;
+import com.medixpress.SQLite.Product;
+
+public class ReportListAdapter extends CustomListAdapter {
+	private final static String TAG = "ReportListAdapter"; 
 
 	private LayoutInflater inflater = null;
-    private Map<Long, Bitmap> productImages = null;
-    private Map<Long, ProductListItem> productItems = null;
+    private Map<Long, Bitmap> reportImages = null;
     private List<String> headerLabels = null;
-    private Map<String, List<Product>> headerChildren = null;
-	private List<Product> products;
+    private Map<String, List<String>> headerChildren = null;
 	private Context context;
 
-	public ProductListAdapter(Context context, List<String> headerLabels, 
-			List<Product> products) {
+	public ReportListAdapter(Context context, List<String> headerLabels, 
+			Map<String, List<String>> headerChildren) {
 		super();
-	    this.products = products;
 	    this.context = context;
-	    this.productImages = new HashMap<Long, Bitmap>();
-	    this.productItems = new HashMap<Long, ProductListItem>();
+	    this.reportImages = new HashMap<Long, Bitmap>();
 	    inflater = (LayoutInflater) 
 	    		context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	    this.headerLabels = headerLabels;
-	    this.headerChildren = new HashMap<String, List<Product>>();
-	    for (String headerLabel : headerLabels) {
-	    	this.headerChildren.put(headerLabel, new ArrayList<Product>());
-	    }
-	    for (Product product : products) {
-	    	List<Product> children = this.headerChildren.get(headerLabels.get(product.getTypeId()));
-	    	children.add(product);
-	    }
+	    this.headerChildren = headerChildren;
 	}
 
 	@Override
-    public Product getChild(int groupPosition, int childPositon) {
+    public String getChild(int groupPosition, int childPositon) {
         return this.headerChildren.get(this.headerLabels.get(groupPosition))
                 .get(childPositon);//
     }
@@ -67,27 +47,33 @@ public class ProductListAdapter extends CustomListAdapter {
     public View getChildView(int groupPosition, final int childPosition,
             boolean isLastChild, View convertView, ViewGroup parent) {
  
-        final Product product = getChild(groupPosition, childPosition);
+        final String child = getChild(groupPosition, childPosition);
         
         //Log.i(TAG, String.format("(%d,%d}: %s", groupPosition, childPosition, product.getName()));
         
         if (convertView == null) {
-			convertView = new ProductListItem(context);
+			convertView = new TextView(context);
         }
-		((ProductListItem)convertView).setProduct(product);
-		//convertView.setOnClickListener(productPressListener);
-		Bitmap productImage = productImages.get(product.getProductId());
-		if (productImage != null) {
-			((ProductListItem)convertView).setImage(productImage);
-		}
-		productItems.put(product.getProductId(), (ProductListItem) convertView);
+		((TextView)convertView).setText(child);
 
         return convertView;
     }
+	
+	private int getFlattenedIndex(int groupPosition, int childPosition) {
+		if (groupPosition > headerChildren.size()) {
+			return -1;
+		}
+		int index = 0;
+		for (int i = 0; i < groupPosition; i++) {
+			index += headerChildren.get(headerLabels.get(i)).size();
+		}//
+		index += childPosition;
+		return index;
+	}
  
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return getChild(groupPosition, childPosition).getProductId();
+        return getFlattenedIndex(groupPosition, childPosition);
     }
     
     @Override
@@ -126,19 +112,6 @@ public class ProductListAdapter extends CustomListAdapter {
         
         return convertView;
     }
-
-	public void setProductImages(Map<Long, Bitmap> productImages) {
-		this.productImages = productImages;
-		for (Product product : products) {
-			Bitmap pI = productImages.get(product.getProductId());
-			if (pI != null) {
-				ProductListItem I = productItems.get(product.getProductId());
-				if (I != null) {
-					I.setImage(pI);
-				}
-			}
-		}
-	}
 	
 	@Override
     public boolean hasStableIds() {

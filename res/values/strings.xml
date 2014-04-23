@@ -15,4 +15,25 @@
         <item>Pending</item>
         <item>Completed</item>
     </string-array>
+    
+    <string-array name="report_types">
+        <item>Sales Reports</item>
+        <item>Best vs. Worst</item>
+        <item>Store Mngmt.</item>
+    </string-array>
+    
+    <string-array name="report_types_sales">
+        <item>Daily Reports</item>
+        <item>Weekly Reports</item>
+        <item>Monthly Reports</item>
+    </string-array>
+    
+    <string-array name="report_types_bvw">
+        <item>Grams</item>
+    </string-array>
+    
+    <string-array name="report_types_mgmt">
+        <item>Rewards Program</item>
+        <item>Employee Management</item>
+    </string-array>
 </resources>

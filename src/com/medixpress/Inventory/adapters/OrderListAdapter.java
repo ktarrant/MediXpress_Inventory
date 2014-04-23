@@ -30,7 +30,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class OrderListAdapter extends BaseExpandableListAdapter {
+public class OrderListAdapter extends CustomListAdapter {
 	private final static String TAG = "OrderListAdapter"; 
 
 	private LayoutInflater inflater = null;

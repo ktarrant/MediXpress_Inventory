@@ -2,6 +2,8 @@ package com.medixpress.Inventory;
 
 
 
+import com.medixpress.Inventory.adapters.CustomListAdapter;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ListFragment;
@@ -23,7 +25,7 @@ public class ItemListFragment extends Fragment implements
 	OnChildClickListener {
 	private final static String TAG = "OnItemClickListener";
 	
-	private BaseExpandableListAdapter adapter = null;
+	private CustomListAdapter adapter = null;
 	private ExpandableListView rootView = null;
 
 	/**
@@ -79,11 +81,15 @@ public class ItemListFragment extends Fragment implements
 	
 	}
 	
-	public void setAdapter(BaseExpandableListAdapter adapter) {
+	public void setAdapter(CustomListAdapter adapter) {
 		this.adapter = adapter;
 		if (rootView != null) {
 			rootView.setAdapter(this.adapter);
 		}
+	}
+	
+	public CustomListAdapter getAdapter() {
+		return this.adapter;
 	}
 	
 	@Override

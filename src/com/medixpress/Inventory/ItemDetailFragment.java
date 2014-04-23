@@ -3,6 +3,7 @@ package com.medixpress.Inventory;
 import com.medixpress.Inventory.View.OrderDetailItem;
 import com.medixpress.Inventory.View.ProductDetailItem;
 import com.medixpress.SQLite.DatabaseHelper;
+import com.medixpress.SQLite.DemoDatabase;
 import com.medixpress.SQLite.Order;
 import com.medixpress.SQLite.Product;
 
@@ -12,6 +13,7 @@ import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -99,6 +101,8 @@ public class ItemDetailFragment extends Fragment {
 				// Product
 				setProduct(loader.getHelper().getProduct(id));
 				setProductImage(loader.getProductImage(id));
+			} else if (typeId == 2) {
+				setProductImage(DemoDatabase.getDemoReport(getActivity(), id));
 			}
 		}
 	}
@@ -115,6 +119,10 @@ public class ItemDetailFragment extends Fragment {
 			} else if (typeId == 1) {
 				// This is a product
 				rootView = inflater.inflate(R.layout.fragment_product_detail,
+						container, false);
+			} else if (typeId == 2) {
+				// This is a report
+				rootView = inflater.inflate(R.layout.fragment_report_detail,
 						container, false);
 			}
 		}
@@ -143,6 +151,15 @@ public class ItemDetailFragment extends Fragment {
 				}
 				if (productImage != null) {
 					detailItem.setImage(productImage);
+				}
+			}
+			if (typeId == 2) {
+				// For reports
+				ImageView detailItem = 
+						(ImageView) rootView.
+						findViewById(R.id.item_detail_report);
+				if (productImage != null) {
+					detailItem.setImageBitmap(productImage);
 				}
 			}
 		}

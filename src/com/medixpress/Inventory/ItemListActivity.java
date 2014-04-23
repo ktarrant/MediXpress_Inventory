@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.medixpress.Inventory.DataLoader.LoadListener;
 import com.medixpress.Inventory.ItemListFragment.Callbacks;
+import com.medixpress.Inventory.adapters.CustomListAdapter;
 import com.medixpress.Inventory.adapters.OrderListAdapter;
 import com.medixpress.Inventory.adapters.ProductListAdapter;
+import com.medixpress.Inventory.adapters.ReportListAdapter;
 import com.medixpress.SQLite.DatabaseHelper;
 import com.medixpress.SQLite.Order;
 import com.medixpress.SQLite.Product;
@@ -55,7 +58,12 @@ public class ItemListActivity extends FragmentActivity implements
 	 * DataLoader object - manages our Database
 	 */
 	private static DataLoader loader = null;
-
+	
+	/**
+	 * Bundles for Adapter states
+	 */
+	private HashMap<String, Bundle> bundles = new HashMap<String, Bundle>();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -157,9 +165,7 @@ public class ItemListActivity extends FragmentActivity implements
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
-				findFragmentById(R.id.item_list));
-		listFragment.setAdapter(getListAdapter((String) tab.getText()));
+		updateListFragment();
 	}
 
 	@Override
@@ -170,17 +176,33 @@ public class ItemListActivity extends FragmentActivity implements
 
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
+		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
+				findFragmentById(R.id.item_list));
+		CustomListAdapter adapter = listFragment.getAdapter();
+		Bundle b = new Bundle();
+		for (int i = 0;i < adapter.getGroupCount(); i++) {
+			b.putBoolean("GROUP_"+i, adapter.isExpanded(i));
+		}
+		bundles.put((String) tab.getText(), b);
 	}
 	
 	private void updateListFragment() {
 		ItemListFragment listFragment = ((ItemListFragment)getFragmentManager().
 				findFragmentById(R.id.item_list));
 		final ActionBar bar = getActionBar();
-		listFragment.setAdapter(getListAdapter((String) bar
-				.getTabAt(bar.getSelectedNavigationIndex()).getText()));
-		listFragment.expand(0);
+		String tabText = (String) bar
+				.getTabAt(bar.getSelectedNavigationIndex()).getText();
+		CustomListAdapter adapter = getListAdapter(tabText);
+		listFragment.setAdapter(adapter);
+		if (bundles.get(tabText) != null) {
+			Bundle b = bundles.get(tabText);
+			for (int i = 0;i < adapter.getGroupCount(); i++) {
+				if (b.getBoolean("GROUP_"+i)) {
+					listFragment.expand(i);
+				}
+			}
+			bundles.put(tabText, null);
+		}
 	}
 	
 	private LoadListener loadListener = new LoadListener() {
@@ -194,9 +216,9 @@ public class ItemListActivity extends FragmentActivity implements
 	 * Creates a ExpandableListAdapter for the given tabIndex
 	 * @param tabIndex index of the ActionBar Tabs
 	 */
-	public BaseExpandableListAdapter getListAdapter(String tab) {
+	public CustomListAdapter getListAdapter(String tab) {
 		Resources res = getResources();
-		BaseExpandableListAdapter rval = null;
+		CustomListAdapter rval = null;
 		if (tab.equals(getString(R.string.tab_orders))) {
 			// ORders tab
 			ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
@@ -218,12 +240,19 @@ public class ItemListActivity extends FragmentActivity implements
 		} else if (tab.equals(getString(R.string.tab_reports))) {
 			// Reports tab
 			ArrayList<String> listDataHeader = new ArrayList<String>(Arrays.asList(
-					res.getStringArray(R.array.product_types)));
-			List<Product> products = loader.getProducts();
-			if (products == null) {
-				products = new ArrayList<Product>();
-			}
-			rval = new ProductListAdapter(this, listDataHeader, products);
+					res.getStringArray(R.array.report_types)));
+			Map<String, List<String>> listChildData = 
+					new HashMap<String, List<String>>();
+			ArrayList<String> children = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.report_types_sales)));
+			listChildData.put(listDataHeader.get(0), children);
+			children = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.report_types_bvw)));
+			listChildData.put(listDataHeader.get(1), children);
+			children = new ArrayList<String>(Arrays.asList(
+					res.getStringArray(R.array.report_types_mgmt)));
+			listChildData.put(listDataHeader.get(2), children);
+			rval = new ReportListAdapter(this, listDataHeader, listChildData);
 		}
 		return rval;
 	}

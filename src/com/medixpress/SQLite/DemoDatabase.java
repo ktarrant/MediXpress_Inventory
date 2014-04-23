@@ -73,4 +73,23 @@ public class DemoDatabase {
     	}
 	    return bitmap;
 	}
+
+	public static Bitmap getDemoReport(Context context, Long id) {
+	    AssetManager assetManager = context.getAssets();
+	    
+	    InputStream istr;
+	    Bitmap bitmap = null;
+		String fn = String.format("report_%d.jpg", id);
+		Log.i(TAG, fn);
+		//Log.i(TAG, fn);
+		/*prd.add(productId);
+	    try {
+	        istr = assetManager.open(fn);
+	        bitmap = BitmapFactory.decodeStream(istr);
+	    } catch (IOException e) {
+	        return null;
+	    }
+	    return bitmap;*/
+		return null;
+	}
 }
