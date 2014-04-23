@@ -80,16 +80,13 @@ public class DemoDatabase {
 	    InputStream istr;
 	    Bitmap bitmap = null;
 		String fn = String.format("report_%d.jpg", id);
-		Log.i(TAG, fn);
-		//Log.i(TAG, fn);
-		/*prd.add(productId);
+		Log.i(TAG, fn);;
 	    try {
 	        istr = assetManager.open(fn);
 	        bitmap = BitmapFactory.decodeStream(istr);
 	    } catch (IOException e) {
 	        return null;
 	    }
-	    return bitmap;*/
-		return null;
+	    return bitmap;
 	}
 }
